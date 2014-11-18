@@ -23,7 +23,7 @@ struct ext2_super_block * get_super_block(void * fs) {
     //FROM: http://www.nongnu.org/ext2-doc/ext2.html#S-LOG-BLOCK-SIZE
     //"The primary copy of the superblock is stored at an offset of 1024 bytes from the start of the device"
     //super block defined in ext2fs.h
-    rreturn (struct ext2_super_block *) fs + 1024;
+    return (struct ext2_super_block *) fs + 1024;
 }
 
 
@@ -40,7 +40,7 @@ __u32 get_block_size(void * fs) {
 // get_block(fs, 0) == fs;
 void * get_block(void * fs, __u32 block_num) {
     //use block size to calculate the block pointer
-    return fs + (get_block_size(fs) * block_num);
+    return (void *) fs + (get_block_size(fs) * block_num);
 }
 
 
@@ -52,9 +52,9 @@ struct ext2_group_desc * get_block_group(void * fs, __u32 block_group_num) {
     //"The block group descriptor table starts on the first block following the superblock."
     //"This would be the third block on a 1KiB block file system, or the second block for 2KiB and larger block file systems."
     if(get_block_size(fs) <= 1024)
-        return (struct ext2_group_desc*) get_block(3);
+        return (struct ext2_group_desc*) (void *)get_block(fs, 3);
     else
-        return (struct ext2_group_desc*) get_block(2);
+        return (struct ext2_group_desc*) get_block(fs, 2);
 
 }
 
