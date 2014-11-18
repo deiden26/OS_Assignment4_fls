@@ -51,10 +51,11 @@ struct ext2_group_desc * get_block_group(void * fs, __u32 block_group_num) {
     //FROM: http://www.nongnu.org/ext2-doc/ext2.html#S-LOG-BLOCK-SIZE
     //"The block group descriptor table starts on the first block following the superblock."
     //"This would be the third block on a 1KiB block file system, or the second block for 2KiB and larger block file systems."
+    // note: the third block is block "2" and the second block is block "1"
     if(get_block_size(fs) <= 1024)
-        return (struct ext2_group_desc*) (void *)get_block(fs, 3);
-    else
         return (struct ext2_group_desc*) get_block(fs, 2);
+    else
+        return (struct ext2_group_desc*) get_block(fs, 1);
 
 }
 

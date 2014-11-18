@@ -1,0 +1,1 @@
+usage: ext2cat <filesystem_image> <path_within_filesystem>
