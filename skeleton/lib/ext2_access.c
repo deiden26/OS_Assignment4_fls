@@ -20,23 +20,27 @@
 
 // Return a pointer to the primary superblock of a filesystem.
 struct ext2_super_block * get_super_block(void * fs) {
-    // FIXME: Uses reference implementation.
-    return _ref_get_super_block(fs);
+    //FROM: http://www.nongnu.org/ext2-doc/ext2.html#S-LOG-BLOCK-SIZE
+    //"The primary copy of the superblock is stored at an offset of 1024 bytes from the start of the device"
+    //super block defined in ext2fs.h
+    rreturn (struct ext2_super_block *) fs + 1024;
 }
 
 
 // Return the block size for a filesystem.
 __u32 get_block_size(void * fs) {
-    // FIXME: Uses reference implementation.
-    return _ref_get_block_size(fs);
+    //FROM: http://www.nongnu.org/ext2-doc/ext2.html#S-LOG-BLOCK-SIZE
+    //"The block size is computed using this 32bit value as the number of bits to shift left the value 1024. ""
+    //"This value may only be positive"
+    return 1024 << get_super_block(fs)->s_log_block_size;
 }
 
 
 // Return a pointer to a block given its number.
 // get_block(fs, 0) == fs;
 void * get_block(void * fs, __u32 block_num) {
-    // FIXME: Uses reference implementation.
-    return _ref_get_block(fs, block_num);
+    //use block size to calculate the block pointer
+    return fs + (get_block_size(fs) * block_num);
 }
 
 
@@ -44,8 +48,14 @@ void * get_block(void * fs, __u32 block_num) {
 // ext2 filesystems will have several of these, but, for simplicity, we will
 // assume there is only one.
 struct ext2_group_desc * get_block_group(void * fs, __u32 block_group_num) {
-    // FIXME: Uses reference implementation.
-    return _ref_get_block_group(fs, block_group_num);
+    //FROM: http://www.nongnu.org/ext2-doc/ext2.html#S-LOG-BLOCK-SIZE
+    //"The block group descriptor table starts on the first block following the superblock."
+    //"This would be the third block on a 1KiB block file system, or the second block for 2KiB and larger block file systems."
+    if(get_block_size(fs) <= 1024)
+        return (struct ext2_group_desc*) get_block(3);
+    else
+        return (struct ext2_group_desc*) get_block(2);
+
 }
 
 
