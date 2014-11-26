@@ -50,8 +50,22 @@ struct ext2_group_desc * get_block_group(void * fs, __u32 block_group_num) {
 // would require finding the correct block group, but you may assume it's in the
 // first one.
 struct ext2_inode * get_inode(void * fs, __u32 inode_num) {
+    //Get a pointer to the first (and only) block group desciptor
+    struct ext2_group_desc* blockGroup = get_block_group(fs, 0);
+    //Get block id of the descriptor's inode table
+    __u32 inodeTableBlockId = blockGroup->bg_inode_table;
+    //Get pointer to the block of the inode table
+    struct ext2_inode* inodeBlockPointer = (struct ext2_inode*)get_block(fs, inodeTableBlockId);
+    //Get pointer to the desired inode (table is 1 indexed)
+    struct ext2_inode* inode = inodeBlockPointer + inode_num - 1;
+
+    return inode;
+
+
+
+
     // FIXME: Uses reference implementation.
-    return _ref_get_inode(fs, inode_num);
+    //return _ref_get_inode(fs, inode_num);
 }
 
 
