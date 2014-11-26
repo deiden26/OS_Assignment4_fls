@@ -28,5 +28,6 @@
 *.dat
 # PDF Documents
 *.pdf
+ext2cat
 #Other
 *.img
