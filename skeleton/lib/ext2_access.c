@@ -153,7 +153,33 @@ __u32 get_inode_from_dir(void * fs, struct ext2_inode * dir, char * name) {
 // Find the inode number for a file by its full path.
 // This is the functionality that ext2cat ultimately needs.
 __u32 get_inode_by_path(void * fs, char * path) {
+
+    //Get the inode of the root directory
+    struct ext2_inode* fileInode = get_root_dir(fs);
+
+    //Split the path into its components
+    char** pathElements = split_path(path);
+
+    //Get the number of files to look at
+    int numFiles = 0;
+    for (char * slash = path; slash != NULL; slash = strchr(slash + 1, '/')) {
+        numFiles++;
+    }
+
+    //For each file...
+    int i;
+    int fileInodeNum;
+    for(i = 0; i < numFiles; i++)
+    {
+        //Get the inode number for the next file
+        fileInodeNum = get_inode_from_dir(fs, fileInode, pathElements[i]);
+        //Get the inode from the inode number
+        fileInode = get_inode(fs, fileInodeNum);
+    }
+
+    return fileInodeNum;
+
     // FIXME: Uses reference implementation.
-    return _ref_get_inode_by_path(fs, path);
+    //return _ref_get_inode_by_path(fs, path);
 }
 
