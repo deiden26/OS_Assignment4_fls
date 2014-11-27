@@ -9,6 +9,9 @@
 // Definitions for ext2cat to compile against.
 #include "ext2_access.h"
 
+//Other libraries
+#include <string.h>
+
 
 
 ///////////////////////////////////////////////////////////
@@ -114,10 +117,36 @@ struct ext2_inode * get_root_dir(void * fs) {
 // that file inside that directory, or 0 if it doesn't exist there.
 // 
 // name should be a single component: "foo.txt", not "/files/foo.txt".
-__u32 get_inode_from_dir(void * fs, struct ext2_inode * dir, 
-        char * name) {
+__u32 get_inode_from_dir(void * fs, struct ext2_inode * dir, char * name) {
+
+    //Get the block size
+    int blockSize = (int)get_block_size(fs);
+
+    //Get pointer to the block for the directory and cast it as a directory entry
+    struct ext2_dir_entry* directoryNode = (struct ext2_dir_entry*)get_block(fs, dir->i_block[0]);
+
+    //Get pointer to the end of the block
+    void* blockEnd = (void*)directoryNode + blockSize;
+
+    //While you haven't reached the end of the block..
+    while((void*)directoryNode < blockEnd)
+    {
+        //If you found the file of name "name"
+        if (!strncmp(directoryNode->name, name, strlen(name)))
+        {
+            //Return the inode number
+            return directoryNode->inode;
+        }
+
+        //Otherwise, get the next directory entry
+        directoryNode = (struct ext2_dir_entry *)((void *)directoryNode + directoryNode->rec_len);
+    }
+
+    //Return 0 if you couldn't find the file
+    return 0;
+
     // FIXME: Uses reference implementation.
-    return _ref_get_inode_from_dir(fs, dir, name);
+    //return _ref_get_inode_from_dir(fs, dir, name);
 }
 
 
